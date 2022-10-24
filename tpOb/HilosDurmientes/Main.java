@@ -14,7 +14,7 @@ public class Main {
         Thread controlReloj= new Thread(new ControlReloj(r));
 
         for(int i=0;i<hilosDurmientes.length;i++) {
-            hilosDurmientes[i]= new Thread(new HiloTrabajador(r));
+            hilosDurmientes[i]= new Thread(new HiloTrabajador(r,i));
         }
         for(int i=0;i<hilosDurmientes.length;i++) {
             hilosDurmientes[i].start();;

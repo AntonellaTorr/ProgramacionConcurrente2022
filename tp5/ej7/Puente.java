@@ -19,7 +19,6 @@ public class Puente {
         else{
             ladoHabilitado='D';
         }
-        this.cantBabuinosPermitidos=cantBabuinos;
      
     }
     public void pasar(char lado){
@@ -39,6 +38,15 @@ public class Puente {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
+                try {
+                    mutex.acquire();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                cantBabuinosEsperandoDer--;
+                mutex.release();
+
             } else{
                 try {
                     mutex.acquire();
@@ -48,7 +56,14 @@ public class Puente {
                 }
                 cantBabuinosPasando++;
                 if (cantBabuinosPasando==capacidadSoga){
-                    semIzquierda.release(capacidadSoga);
+                    if (cantBabuinosEsperandoIzq>0){
+                        semIzquierda.release(capacidadSoga);
+                    }
+                    else{
+                        // VER SI ESTA BIEN 
+                        semDerecha.release();
+                    }
+                    
                 }
                 else{
                     semDerecha.release();
@@ -56,10 +71,54 @@ public class Puente {
                 mutex.release();
                 
             }
+    }
+    else{
+        if (!semIzquierda.tryAcquire()){
+            try { mutex.acquire();} catch (InterruptedException e) { e.printStackTrace();}
+            cantBabuinosEsperandoIzq++;
+            mutex.release();
+
+            try {
+                semIzquierda.acquire();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try { mutex.acquire();} catch (InterruptedException e) { e.printStackTrace();}
+            cantBabuinosEsperandoIzq--;
+            mutex.release();
+        } else{
+            try {
+                mutex.acquire();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            cantBabuinosPasando++;
+            if (cantBabuinosPasando==capacidadSoga){
+                if (cantBabuinosEsperandoDer>0){
+                    semDerecha.release(capacidadSoga);
+                }
+                else{
+                    // VER SI ESTA BIEN 
+                    semIzquierda.release();
+                }
+                
+            }
+            else{
+                semIzquierda.release();
+            }
+            mutex.release();
+            
         }
+
+    }
     }
 
+    public void irse (){
+        try { mutex.acquire();} catch (InterruptedException e) { e.printStackTrace();}
+        cantBabuinosPasando--;
+        mutex.release();
+    }
 
-
-    
 }

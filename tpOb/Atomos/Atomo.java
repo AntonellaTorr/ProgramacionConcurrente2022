@@ -25,7 +25,7 @@ public class Atomo implements Runnable{
             e.hListo();
             System.out.println("Hidrogeno LISTO");
         }
-        Random r= new Random();
+        
     
         if (hacerAgua){
             e.puedePonerAgua();

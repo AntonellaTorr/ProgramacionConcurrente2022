@@ -1,25 +1,37 @@
 package tpOb.Atomos;
 
-import java.util.Random;
+
+import java.util.Scanner;
 
 
 
 public class Main {
     public static void main(String[] args) {
         int i=0;
-        Random r= new Random();
-        int cantAtomos= r.nextInt(20);
+        Scanner s= new Scanner(System.in);
+
+
+        System.out.println("Ingrese la cantidad de atomos de oxigeno");
+        int cantOxigeno=s.nextInt();
+        int cantHidrogeno=cantOxigeno*2;
+        int cantAtomos= cantOxigeno+cantHidrogeno;
+        
         Thread atomos[]= new Thread[cantAtomos];
         char tipo;
 
-        Espacio e= new Espacio(r.nextInt(10));
+        System.out.println("Ingrese la capacidad del recipiente");
+        int capRecipientes=s.nextInt();
+        Espacio e= new Espacio(capRecipientes);
+    
+       
 
         for (int j=0;j<atomos.length;j++){
-           
-            if (r.nextInt(2)==0){
-                tipo='H';
-            }else{
+            if (j<cantOxigeno){
                 tipo='O';
+            }
+            else{
+                tipo='H';
+
             }
 
             if (j%2==0){

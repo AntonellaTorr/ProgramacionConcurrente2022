@@ -5,6 +5,7 @@ import java.util.concurrent.Semaphore;
 public class Centro {
     private int cantPerrosComiendo, cantPerrosEsperando, cantGatosComiendo, cantGatosEsperando, cantTotalPerros,cantTotalGatos, limite;
     private int cantPlatos;
+    //VERIFICAR 
     private Semaphore mutex; //para exclusion mutua en el acceso a variables 
     private Semaphore platosPerro;// simboliza los platos a los que van a acceder los perros
     private Semaphore platosGato;// simboliza los platos a los que van a acceder los gatos
@@ -233,7 +234,7 @@ public class Centro {
         } else { // si la cantidad de gatos que hay comiendo no es igual a la cantidd de platos
                  // es xq no hay esperando para entrar entonces si hay perros esperand
             if (cantPerrosEsperando > 0) {
-                System.out.println(" No se llenan los platos de los gatos y hay gatos esperando entonces deja entrar a los perros ");
+                System.out.println(" No se llenan los platos de los gatos y hay perros esperando entonces deja entrar a los perro ");
                 rendevousPerros.release(cantPlatos);
             }
         }

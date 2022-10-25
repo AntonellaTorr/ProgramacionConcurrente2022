@@ -4,33 +4,46 @@ import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class Puente {
-    private char ladoHabilitado;
+
     private Semaphore semDerecha;
     private Semaphore semIzquierda;
     private Semaphore mutex;
     private int cantBabuinosEsperandoDer, cantBabuinosEsperandoIzq, cantBabuinosPasando, capacidadSoga;
 
-    public Puente (int cantBabuinos){
-        Random r= new Random();
-        int n =r.nextInt(2);
-        if (n==0){
-            ladoHabilitado='I';
-        }
-        else{
-            ladoHabilitado='D';
-        }
+    public Puente (int capacidadSoga){
+        semDerecha= new Semaphore(0);
+        semIzquierda= new Semaphore(0);
+        mutex= new Semaphore(1);
+        cantBabuinosEsperandoDer=0;
+        cantBabuinosEsperandoIzq=0;
+        cantBabuinosPasando=0;
+        this.capacidadSoga=capacidadSoga;
+        
      
     }
     public void pasar(char lado){
+
+        try { mutex.acquire();} catch (InterruptedException e) { e.printStackTrace();}
+        if (cantBabuinosPasando==0){
+           
+            if (lado=='I'){
+                System.out.println(Thread.currentThread().getName() +" ES EL PRIMER BABUINO Y VIENE DEL LADO IZQ");
+                semIzquierda.release(capacidadSoga);
+            }
+            else{
+                System.out.println(Thread.currentThread().getName() +" ES EL PRIMER BABUINO Y VIENE DEL LADO DER");
+                semDerecha.release(capacidadSoga);
+            }
+        }
+        mutex.release();
+
         if (lado=='D'){
+        
             if (!semDerecha.tryAcquire()){
-                try {
-                    mutex.acquire();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                System.out.println(Thread.currentThread().getName() +" no pudo pasar");
+                try { mutex.acquire();} catch (InterruptedException e) { e.printStackTrace();}
                 cantBabuinosEsperandoDer++;
+                System.out.println(Thread.currentThread().getName() +" debe esperar");
                 mutex.release();
                 try {
                     semDerecha.acquire();
@@ -38,35 +51,36 @@ public class Puente {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                try {
-                    mutex.acquire();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                System.out.println(Thread.currentThread().getName() +" termino de esperar puede pasar");
+                try { mutex.acquire();} catch (InterruptedException e) { e.printStackTrace();}
                 cantBabuinosEsperandoDer--;
                 mutex.release();
 
             } else{
-                try {
-                    mutex.acquire();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                try { mutex.acquire();} catch (InterruptedException e) { e.printStackTrace();}
                 cantBabuinosPasando++;
+                System.out.println(Thread.currentThread().getName() +" PUDO PASAR " );
                 if (cantBabuinosPasando==capacidadSoga){
                     if (cantBabuinosEsperandoIzq>0){
+                        System.out.println(Thread.currentThread().getName() +" ERA EL ULTIMO BABUINO DE LA DERECHA QUE PODIA PASAR Y LE DA EL PASO A LOS DE LA IZQ" );
                         semIzquierda.release(capacidadSoga);
                     }
                     else{
-                        // VER SI ESTA BIEN 
-                        semDerecha.release();
+                        if (cantBabuinosEsperandoDer>0){
+                            System.out.println(Thread.currentThread().getName() +" ERA EL ULTIMO BABUINO DE LA DERECHA  PERO NO HABIA DE LA IZQ " );
+                            semDerecha.release();
+                        }
                     }
                     
                 }
                 else{
-                    semDerecha.release();
+                    if (cantBabuinosEsperandoDer==0){
+                        if (cantBabuinosEsperandoIzq>0){
+                            semIzquierda.release(capacidadSoga);
+                            semDerecha= new Semaphore(0);
+                        }
+                    } 
+                  
                 }
                 mutex.release();
                 
@@ -74,8 +88,10 @@ public class Puente {
     }
     else{
         if (!semIzquierda.tryAcquire()){
+            System.out.println(Thread.currentThread().getName() +" no pudo pasar");
             try { mutex.acquire();} catch (InterruptedException e) { e.printStackTrace();}
             cantBabuinosEsperandoIzq++;
+            System.out.println(Thread.currentThread().getName() +" debe esperar");
             mutex.release();
 
             try {
@@ -84,6 +100,7 @@ public class Puente {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            System.out.println(Thread.currentThread().getName() +" termino de esperar puede pasar");
             try { mutex.acquire();} catch (InterruptedException e) { e.printStackTrace();}
             cantBabuinosEsperandoIzq--;
             mutex.release();
@@ -95,18 +112,27 @@ public class Puente {
                 e.printStackTrace();
             }
             cantBabuinosPasando++;
+            System.out.println(Thread.currentThread().getName() +" PUDO PASAR " );
             if (cantBabuinosPasando==capacidadSoga){
                 if (cantBabuinosEsperandoDer>0){
+                    System.out.println(Thread.currentThread().getName() +" ERA EL ULTIMO BABUINO DE LA DERECHA QUE PODIA PASAR Y LE DA EL PASO A LOS DE LA IZQ" );
                     semDerecha.release(capacidadSoga);
                 }
                 else{
-                    // VER SI ESTA BIEN 
-                    semIzquierda.release();
+                    if (cantBabuinosEsperandoIzq>0){
+                        System.out.println(Thread.currentThread().getName() +" ERA EL ULTIMO BABUINO DE LA DERECHA  PERO NO HABIA DE LA IZQ " );
+                        semIzquierda.release();
+                    }
                 }
                 
             }
             else{
-                semIzquierda.release();
+                if (cantBabuinosEsperandoIzq==0){
+                    if (cantBabuinosEsperandoDer>0){
+                        semDerecha.release(capacidadSoga);
+                        semIzquierda= new Semaphore(0);
+                    }
+                }
             }
             mutex.release();
             

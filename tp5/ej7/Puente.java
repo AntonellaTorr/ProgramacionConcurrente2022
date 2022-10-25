@@ -5,9 +5,10 @@ import java.util.concurrent.Semaphore;
 
 public class Puente {
     private char ladoHabilitado;
-    private Semaphore espacioPuente;
-    private Semaphore semEspera;
-    private int cantBabuinosPermitidos;
+    private Semaphore semDerecha;
+    private Semaphore semIzquierda;
+    private Semaphore mutex;
+    private int cantBabuinosEsperandoDer, cantBabuinosEsperandoIzq, cantBabuinosPasando, capacidadSoga;
 
     public Puente (int cantBabuinos){
         Random r= new Random();
@@ -19,38 +20,46 @@ public class Puente {
             ladoHabilitado='D';
         }
         this.cantBabuinosPermitidos=cantBabuinos;
-        espacioPuente= new Semaphore(cantBabuinosPermitidos);
-        semEspera=new Semaphore(0);
+     
     }
-
-    public char getLadoHabilitado (){
-        return ladoHabilitado;
-    }
-    public void setLadoHabilitado (char lado){
-        this.ladoHabilitado=lado;
-    }
-    public void dejarPasarBabuinos(){
-        semEspera.release(cantBabuinosPermitidos);
-    }
-
-    public void esperarHabilitacionLado(){
-        try {
-            semEspera.acquire();
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    public void pasar(char lado){
+        if (lado=='D'){
+            if (!semDerecha.tryAcquire()){
+                try {
+                    mutex.acquire();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                cantBabuinosEsperandoDer++;
+                mutex.release();
+                try {
+                    semDerecha.acquire();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            } else{
+                try {
+                    mutex.acquire();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                cantBabuinosPasando++;
+                if (cantBabuinosPasando==capacidadSoga){
+                    semIzquierda.release(capacidadSoga);
+                }
+                else{
+                    semDerecha.release();
+                }
+                mutex.release();
+                
+            }
         }
     }
-    public void cruzarPuente(){
-        try {
-            espacioPuente.acquire();
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-    public void liberarEspacioPuente(){
-        espacioPuente.release();
-    }
+
+
+
     
 }

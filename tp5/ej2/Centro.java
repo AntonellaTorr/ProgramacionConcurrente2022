@@ -74,18 +74,18 @@ public class Centro {
                 System.out.println(Thread.currentThread().getName() +" pudo acceder al plato");
                  //una vez q logro hacer el acquire del plato
                 try {mutex.acquire();} catch (InterruptedException e) {e.printStackTrace();}
-                cantPerrosComiendo++;
-                cantTotalPerros++;
+                cantGatosComiendo++;
+                cantTotalGatos++;
                 System.out.println(Thread.currentThread().getName() +" COMIENDO");
                 mutex.release();
             }
             else{
                 try {mutex.acquire();} catch (InterruptedException e) {e.printStackTrace();}
                 System.out.println(Thread.currentThread().getName() +" estan comiendo los perros debe esperar");
-                cantPerrosEsperando++;
+                cantGatosEsperando++;
                 mutex.release();
-                //en este semaforo se va a trabar hasta q le avisen q ya estan comiendo los perros
-                try {rendevousPerros.acquire();} catch (InterruptedException e) {e.printStackTrace();}
+                
+                try {rendevousGatos.acquire();} catch (InterruptedException e) {e.printStackTrace();}
 
 
                 try {mutex.acquire();} catch (InterruptedException e) {e.printStackTrace();}

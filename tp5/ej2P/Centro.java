@@ -35,6 +35,8 @@ public class Centro {
                 cantGatosEsperando++;
                 mutex.release();
 
+                System.out.println(Thread.currentThread().getName() +" llega la comedor");
+
                 entrarGatos.acquire();
 
                 mutex.acquire();
@@ -42,9 +44,11 @@ public class Centro {
                 mutex.release();
 
                 platos.acquire();
+                System.out.println(Thread.currentThread().getName() +" accede a un plato");
 
                 mutex.acquire();
                 cantGatosComiendo++;
+                cantTotalGatos++;
                 mutex.release();
 
 
@@ -59,6 +63,7 @@ public class Centro {
                 mutex.acquire();
                 cantPerrosEsperando++;
                 mutex.release();
+                System.out.println(Thread.currentThread().getName() +" llega la comedor");
 
                 entrarPerros.acquire();
 
@@ -67,9 +72,11 @@ public class Centro {
                 mutex.release();
 
                 platos.acquire();
+                System.out.println(Thread.currentThread().getName() +" llega la comedor");
 
                 mutex.acquire();
                 cantPerrosComiendo++;
+                cantTotalPerros++;
                 mutex.release();
 
 
@@ -85,6 +92,7 @@ public class Centro {
 
     public void irse(char tipo){
         platos.release();
+        System.out.println(Thread.currentThread().getName() +" libera el plato");
 
         if (tipo=='G'){
             this.irseGato();
@@ -93,6 +101,7 @@ public class Centro {
             this.irsePerro();
 
         }
+        System.out.println(Thread.currentThread().getName() +" se va");
 
 
 
@@ -102,9 +111,12 @@ public class Centro {
         try {
             mutex.acquire();
             cantGatosComiendo--;
+            
             if (cantGatosComiendo == 0){
+                System.out.println(Thread.currentThread().getName() +" era el ultimo comiendo");
                 if (cantTotalGatos >= limite) {
                     if (cantPerrosEsperando > 0) {
+                        System.out.println(Thread.currentThread().getName() +"  se llego al limite de gatos y hay perros esperando");
                         cantGatosComiendo = 0;
                         // hay perros
                         entrarPerros.release(limite);
@@ -112,9 +124,11 @@ public class Centro {
                     } else {
                         // no hay perros
                         if (cantGatosEsperando > 0) {
+                            System.out.println(Thread.currentThread().getName() +"  se llego al limite de gatos NO HABIA PERROS");
                             // pero si gatos
                             entrarGatos.release();
                         } else {
+                            System.out.println(Thread.currentThread().getName() +"  se llego al limite de gatos NO HABIA PERROS NI GATOS");
                             // SETEAR EN 0
                             // no hay niguno de los 2
                             entrarGatos = new Semaphore(0);
@@ -125,12 +139,15 @@ public class Centro {
                 } else {
                     // si no llegue al limite
                     // si no vienen mas gatos por el momento
+                    System.out.println(Thread.currentThread().getName() +"  NO se llego al limite de gatos Y NO HABIA MAS GATOS");
                     if (cantGatosEsperando == 0) {
                         if (cantPerrosEsperando > 0) {
+                            System.out.println(Thread.currentThread().getName() +"  NO se llego al limite de gatos Y NO HABIA MAS GATOS PERO SI PERROS");
                             entrarGatos = new Semaphore(0);
                             entrarPerros.release(limite);
                         } else {
                             // si no viene nadie
+                            System.out.println(Thread.currentThread().getName() +"  NO se llego al limite de gatos Y NO HABIA MAS GATOS NI PERROS");
                             entrarGatos = new Semaphore(0);
                             entrarPrimerAnimal.release();
                         }
@@ -153,8 +170,10 @@ public class Centro {
             mutex.acquire();
             cantPerrosComiendo--;
             if (cantPerrosComiendo == 0){
+                System.out.println(Thread.currentThread().getName() +" era el ultimo comiendo");
                 if (cantTotalPerros >= limite) {
                     if (cantGatosEsperando > 0) {
+                        System.out.println(Thread.currentThread().getName() +"  se llego al limite de perros y hay gatos esperando");
                         cantPerrosComiendo = 0;
                         // hay gatos
                         entrarGatos.release(limite);
@@ -162,11 +181,13 @@ public class Centro {
                     } else {
                         // no hay gatos
                         if (cantPerrosEsperando > 0) {
+                            System.out.println(Thread.currentThread().getName() +"  se llego al limite de perros pero NO HABIA GATOS");
                             // pero si perros
                             entrarPerros.release();
                         } else {
                             // SETEAR EN 0
                             // no hay niguno de los 2
+                            System.out.println(Thread.currentThread().getName() +"  se llego al limite de perros pero NO HABIA GATOS NI PERROS" );
                             entrarPerros = new Semaphore(0);
                             entrarPrimerAnimal.release();
 
@@ -176,10 +197,12 @@ public class Centro {
                     // si no llegue al limite y  no vienen mas perros por el momento
                     if (cantPerrosEsperando == 0) {
                         if (cantGatosEsperando > 0) {
+                            System.out.println(Thread.currentThread().getName() +"  NO se llego al limite de perros pero SI HABIA GATOS " );
                             entrarPerros = new Semaphore(0);
                             entrarGatos.release(limite);
                         } else {
                             // si no viene nadie
+                            System.out.println(Thread.currentThread().getName() +"  NO se llego al limite de perros pero tampoco HABIA GATOS " );
                             entrarPerros = new Semaphore(0);
                             entrarPrimerAnimal.release();
                         }
@@ -192,6 +215,7 @@ public class Centro {
             e.printStackTrace();
         }
         mutex.release();
+   
     
       
         
@@ -201,10 +225,11 @@ public class Centro {
     public void setearPrioridadAnimal(char tipo) {
         if (entrarPrimerAnimal.tryAcquire()) {
             if (tipo == 'G') {
-            
+                System.out.println(Thread.currentThread().getName() +  "INICIAN LOS GATOS ");
                 entrarGatos.release(limite);
             } else {
     
+                System.out.println(Thread.currentThread().getName() + " INICIAN LOS PERROS ");
                 entrarPerros.release(limite);
             }
 

@@ -6,12 +6,20 @@ public class Pista {
     private Semaphore comenzarAterrizaje, comenzarDespegue;
     private Semaphore mutexPista, mutex, cambiarPrioridad;
     private int cantTotalAterrizaje, cantTotalDespegue, maximo, cantEsperandoAterrizaje, cantEsperandoDespegue;
-    private char prioridad;
+  
+    
 
-    public Pista() {
+    public Pista(int maximo) {
+        this.maximo=maximo;
         comenzarAterrizaje = new Semaphore(maximo);
         comenzarDespegue = new Semaphore(0);
-        prioridad = 'D';
+        mutexPista= new Semaphore(1);
+        mutex= new Semaphore(1);
+        cambiarPrioridad= new Semaphore(1);
+        cantEsperandoAterrizaje=0;
+        cantEsperandoDespegue=0;
+        cantTotalAterrizaje=0;
+        cantTotalDespegue=0;
 
     }
 
@@ -29,10 +37,11 @@ public class Pista {
 
     public void puedeDespegar() {
         try {
-            comenzarDespegue.acquire();
             mutex.acquire();
             cantEsperandoDespegue++;
             mutex.release();
+            comenzarDespegue.acquire();
+           
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -40,10 +49,11 @@ public class Pista {
 
     public void puedeAterrizar() {
         try {
-            comenzarAterrizaje.acquire();
             mutex.acquire();
             cantEsperandoAterrizaje++;
             mutex.release();
+            comenzarAterrizaje.acquire();
+        
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -163,12 +173,12 @@ public class Pista {
                     // no hay perros
                     if (cantEsperandoDespegue > 0) {
                         System.out.println(
-                                Thread.currentThread().getName() + "  se llego a los despgues pero NO HABIA aterrizajes");
+                                Thread.currentThread().getName() + "  se llego a los despegues pero NO HABIA aterrizajes");
                         // pero si gatos
                         comenzarDespegue.release();
                     } else {
                         System.out.println(Thread.currentThread().getName()
-                                + "  se llego al limite de despgues pero no hay aterrizajes ni despegues");
+                                + "  se llego al limite de despegues pero no hay aterrizajes ni despegues");
                         // SETEAR EN 0
                         // no hay niguno de los 2
                         comenzarDespegue = new Semaphore(0);
@@ -181,17 +191,17 @@ public class Pista {
             } else {
                 // si no llegue al limite
                 // si no vienen mas aterrizajess por el momento
-                System.out.println(Thread.currentThread().getName() + "  NO se llego al limite de aterrizajes");
+                System.out.println(Thread.currentThread().getName() + "  NO se llego al limite de despgues");
                 if (cantEsperandoDespegue == 0) {
                     if (cantEsperandoAterrizaje > 0) {
                         System.out.println(Thread.currentThread().getName()
-                                + "  NO se llego al limite de aterrizajes Y NO HABIA MAS aterrizajes PERO SI despegues");
+                                + "  NO se llego al limite de despegues Y NO HABIA MAS despgues PERO SI aterrizajes");
                         comenzarDespegue = new Semaphore(0);
                         comenzarAterrizaje.release(maximo);
                     } else {
                         // si no viene nadi
                         System.out.println(Thread.currentThread().getName()
-                                + "  NO se llego al limite de aterrizajes Y NO HABIA MAS aterrizajes NI despegues");
+                                + "  NO se llego al limite de despegues Y NO HABIA MAS aterrizajes NI despegues");
                         comenzarDespegue = new Semaphore(0);
                        
                     }

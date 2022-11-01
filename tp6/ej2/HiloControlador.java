@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class HiloControlador implements Runnable{
     private GestorSala g;
-    
+
     public HiloControlador (GestorSala g){
         this.g=g;
     }
@@ -20,7 +20,7 @@ public class HiloControlador implements Runnable{
             System.out.println( "--------------------NUEVA TEMPERATURA: " +n +" ------------");
             g.notificarTemperatura(n);
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

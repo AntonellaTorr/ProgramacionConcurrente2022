@@ -14,9 +14,9 @@ public class GestorSala {
     }
     public synchronized void entrarSala(){
 
-        System.out.println(Thread.currentThread().getName() + " ESTA EN LA PUERTA DE LA SALA");
-        while (cantPersonasActual>=cantPersonasMaximo && cantJubiladosEsperando!=0){
-            System.out.println(Thread.currentThread().getName() + " no pudo entrar por que la sala estaba llena");
+        System.out.println(Thread.currentThread().getName() + " ESTA EN LA PUERTA DE LA SALA" + "\n");
+        while (cantPersonasActual>=cantPersonasMaximo || cantJubiladosEsperando!=0){
+            System.out.println(Thread.currentThread().getName() + " no pudo entrar por que la sala estaba llena" + "\n");
             try {
                 this.wait();
             } catch (InterruptedException e) {
@@ -25,15 +25,15 @@ public class GestorSala {
             }
         }
         cantPersonasActual++;
-        System.out.println(Thread.currentThread().getName() + "  ENTRO " + " cantidad de jubilado esperando cuando entre "+ cantJubiladosEsperando);
+        System.out.println(Thread.currentThread().getName() + "  ENTRO " + "\n");
+        System.out.println("-----------------CANTIDAD DE PERSONAS ADENTRO->> "+ cantPersonasActual + "\n");
 
     }
     public synchronized void entrarSalaJubilado (){
-        System.out.println(Thread.currentThread().getName() + " JUBILADO ESTA EN LA PUERTA DE LA SALA");
+        System.out.println(Thread.currentThread().getName() + " JUBILADO ESTA EN LA PUERTA DE LA SALA" + "\n" );
         cantJubiladosEsperando++;
-        System.out.println(" Cant jubilados esperando "+cantJubiladosEsperando);
         while (cantPersonasActual>=cantPersonasMaximo){
-            System.out.println(Thread.currentThread().getName() + " Jubilado no pudo entrar por que la sala estaba llena");
+            System.out.println(Thread.currentThread().getName() + " Jubilado no pudo entrar por que la sala estaba llena" + "\n");
             try {
                 this.wait();
             } catch (InterruptedException e) {
@@ -43,15 +43,16 @@ public class GestorSala {
         }
        
         cantPersonasActual++;
-        System.out.println(Thread.currentThread().getName() + " Jubilado ENTRO");
+        
+        System.out.println(Thread.currentThread().getName() + " Jubilado ENTRO" + "\n");
+        System.out.println("-----------------CANTIDAD DE PERSONAS ADENTRO->> "+ cantPersonasActual + "\n");
         cantJubiladosEsperando--;
-       System.out.println(cantJubiladosEsperando);
         this.notifyAll(); //le notifica a las personas que ya no hay un jubilado esperando
 
     }
     public synchronized void salirSala(){
         cantPersonasActual--;
-        System.out.println(Thread.currentThread().getName() +" se va");
+        System.out.println(Thread.currentThread().getName() +" se va"+ "\n" );
         this.notifyAll();
 
     }

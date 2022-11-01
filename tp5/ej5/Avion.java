@@ -15,7 +15,7 @@ public class Avion implements Runnable {
         Random r= new Random();
         
         if (r.nextInt(2)==0){
-            System.out.println(Thread.currentThread().getName() + "DESEA ATERRIZAR");
+            System.out.println(Thread.currentThread().getName() + " DESEA ATERRIZAR");
             p.puedeAterrizar();
             p.comenzarAterrizar();
             this.usandoPista();
@@ -26,7 +26,8 @@ public class Avion implements Runnable {
         }
         else{
             System.out.println(Thread.currentThread().getName() + "DESEA DESPEGAR");
-            p.puedeDespegar();
+            //p.puedeDes
+            //pegar();
             p.comenzarDespegue();
             this.usandoPista();
             p.finalizarDespegue();

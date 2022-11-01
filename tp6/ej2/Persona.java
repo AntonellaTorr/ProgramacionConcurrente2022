@@ -20,6 +20,16 @@ public class Persona implements Runnable{
             System.out.println( Thread.currentThread().getName() + " ES PERSONA NORMAL");
             g.entrarSala();
         }
+        this.recorrerMuseo();
+
         g.salirSala();
+    }
+    public void recorrerMuseo (){
+        try {
+            Thread.sleep(400);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }

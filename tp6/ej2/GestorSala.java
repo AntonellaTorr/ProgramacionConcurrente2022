@@ -62,6 +62,9 @@ public class GestorSala {
           
             cantPersonasMaximo=5;
         }
+        else{
+            cantPersonasMaximo=10;
+        }
     }
     
     
